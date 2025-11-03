@@ -57,6 +57,13 @@ def extract_orange_text(image_path):
         text = re.sub(r'[^\w\s-]', '', text)
         text = re.sub(r'\s+', '_', text)
         
+        # Remove leading/trailing underscores and hyphens
+        text = text.strip('_-')
+        
+        # If it starts with special characters after cleaning, remove them
+        while text and not text[0].isalnum():
+            text = text[1:]
+        
         return text if text else None
         
     except Exception as e:
