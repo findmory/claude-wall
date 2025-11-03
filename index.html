@@ -1,265 +1,264 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Image Wall</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            background: #1a1a1a;
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-        }
+      body {
+        background: #1a1a1a;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+      }
 
-        .image-container {
-            position: absolute;
-            transition: transform 0.3s ease;
-        }
+      .image-container {
+        position: absolute;
+        transition: transform 0.3s ease;
+      }
 
-        .image-container:hover {
-            transform: scale(1.1) !important;
-            z-index: 1000;
-            cursor: pointer;
-        }
+      .image-container:hover {
+        transform: scale(1.1) !important;
+        z-index: 1000;
+        cursor: pointer;
+      }
 
-        .image-container img {
-            max-width: 200px;
-            max-height: 200px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            border-radius: 4px;
-        }
+      .image-container img {
+        max-width: 200px;
+        max-height: 200px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
+      }
 
-        .refresh-button {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            padding: 12px 20px;
-            background: #333;
-            color: #fff;
-            border: 2px solid #555;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-family: sans-serif;
-            z-index: 10000;
-            transition: all 0.3s ease;
-        }
+      .refresh-button {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        padding: 12px 20px;
+        background: #333;
+        color: #fff;
+        border: 2px solid #555;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-family: sans-serif;
+        z-index: 10000;
+        transition: all 0.3s ease;
+      }
 
-        .refresh-button:hover {
-            background: #444;
-            border-color: #777;
-            transform: scale(1.05);
-        }
+      .refresh-button:hover {
+        background: #444;
+        border-color: #777;
+        transform: scale(1.05);
+      }
 
-        .refresh-button:active {
-            transform: scale(0.95);
-        }
+      .refresh-button:active {
+        transform: scale(0.95);
+      }
 
-        .play-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            background: #333;
-            color: #fff;
-            border: 2px solid #555;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-family: sans-serif;
-            z-index: 10000;
-            transition: all 0.3s ease;
-        }
+      .play-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: #333;
+        color: #fff;
+        border: 2px solid #555;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-family: sans-serif;
+        z-index: 10000;
+        transition: all 0.3s ease;
+      }
 
-        .play-button:hover {
-            background: #444;
-            border-color: #777;
-            transform: scale(1.05);
-        }
+      .play-button:hover {
+        background: #444;
+        border-color: #777;
+        transform: scale(1.05);
+      }
 
-        .play-button:active {
-            transform: scale(0.95);
-        }
+      .play-button:active {
+        transform: scale(0.95);
+      }
 
-        .play-button.playing {
-            background: #4CAF50;
-            border-color: #66BB6A;
-        }
+      .play-button.playing {
+        background: #4caf50;
+        border-color: #66bb6a;
+      }
 
-        .image-container.highlighted {
-            z-index: 9999 !important;
-            transform: scale(1.1) rotate(0deg) !important;
-        }
+      .image-container.highlighted {
+        z-index: 9999 !important;
+        transform: scale(1.1) rotate(0deg) !important;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <button class="refresh-button" onclick="refreshImages()">🔄 Shuffle</button>
     <button class="play-button" onclick="toggleAutoPlay()">▶️ Play</button>
     <script>
-        // Path to your images folder (adjust if needed)
-        const imagePath = './images/';
-        let currentImages = [];
-        let isPlaying = false;
-        let playInterval = null;
-        let currentHighlightedImage = null;
+      // Path to your images folder (adjust if needed)
+      const imagePath = "./images/";
+      let currentImages = [];
+      let isPlaying = false;
+      let playInterval = null;
+      let currentHighlightedImage = null;
 
-        // Function to get random position
-        function getRandomPosition() {
-            const x = Math.random() * (window.innerWidth - 200);
-            const y = Math.random() * (window.innerHeight - 200);
-            return { x, y };
-        }
+      // Function to get random position
+      function getRandomPosition() {
+        const x = Math.random() * (window.innerWidth - 200);
+        const y = Math.random() * (window.innerHeight - 200);
+        return { x, y };
+      }
 
-        // Function to get random rotation
-        function getRandomRotation() {
-            return Math.floor(Math.random() * 360);
-        }
+      // Function to get random rotation
+      function getRandomRotation() {
+        return Math.floor(Math.random() * 360);
+      }
 
-        // Function to create and position an image
-        function createImageElement(filename) {
-            const container = document.createElement('div');
-            container.className = 'image-container';
-            
-            const img = document.createElement('img');
-            img.src = imagePath + filename;
-            img.alt = filename;
-            
-            const pos = getRandomPosition();
-            const rotation = getRandomRotation();
-            
-            container.style.left = pos.x + 'px';
-            container.style.top = pos.y + 'px';
-            container.style.transform = `rotate(${rotation}deg)`;
-            
-            container.appendChild(img);
-            document.body.appendChild(container);
-        }
+      // Function to create and position an image
+      function createImageElement(filename) {
+        const container = document.createElement("div");
+        container.className = "image-container";
 
-        // Function to clear all images
-        function clearImages() {
-            document.querySelectorAll('.image-container').forEach(container => {
-                container.remove();
-            });
-        }
+        const img = document.createElement("img");
+        img.src = imagePath + filename;
+        img.alt = filename;
 
-        // Function to refresh/shuffle images
-        function refreshImages() {
-            clearImages();
-            currentImages.forEach(filename => {
-                createImageElement(filename);
-            });
-        }
+        const pos = getRandomPosition();
+        const rotation = getRandomRotation();
 
-        // Function to highlight a random image
-        function highlightRandomImage() {
-            const containers = document.querySelectorAll('.image-container');
-            if (containers.length === 0) return;
+        container.style.left = pos.x + "px";
+        container.style.top = pos.y + "px";
+        container.style.transform = `rotate(${rotation}deg)`;
 
-            // Remove highlight from current image
-            if (currentHighlightedImage) {
-                currentHighlightedImage.classList.remove('highlighted');
-            }
+        container.appendChild(img);
+        document.body.appendChild(container);
+      }
 
-            // Pick a random image
-            const randomIndex = Math.floor(Math.random() * containers.length);
-            currentHighlightedImage = containers[randomIndex];
-            
-            // Add highlight class (scales up and rotates to 0)
-            currentHighlightedImage.classList.add('highlighted');
-        }
-
-        // Function to toggle autoplay
-        function toggleAutoPlay() {
-            const playButton = document.querySelector('.play-button');
-            
-            if (isPlaying) {
-                // Stop playing
-                isPlaying = false;
-                clearInterval(playInterval);
-                playButton.textContent = '▶️ Play';
-                playButton.classList.remove('playing');
-                
-                // Remove highlight from current image
-                if (currentHighlightedImage) {
-                    currentHighlightedImage.classList.remove('highlighted');
-                    currentHighlightedImage = null;
-                }
-            } else {
-                // Start playing
-                isPlaying = true;
-                playButton.textContent = '⏸️ Pause';
-                playButton.classList.add('playing');
-                
-                // Highlight first image immediately
-                highlightRandomImage();
-                
-                // Then continue every 3 seconds
-                playInterval = setInterval(highlightRandomImage, 3000);
-            }
-        }
-
-        // Load images from the folder
-        async function loadImages() {
-            try {
-                // Fetch the directory listing
-                const response = await fetch(imagePath);
-                const text = await response.text();
-                
-                // Parse the HTML directory listing to find PNG files
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const links = doc.querySelectorAll('a');
-                
-                const pngFiles = [];
-                links.forEach(link => {
-                    const href = link.getAttribute('href');
-                    if (href && href.toLowerCase().endsWith('.png')) {
-                        pngFiles.push(href);
-                    }
-                });
-
-                // Store the images for refresh functionality
-                currentImages = pngFiles;
-
-                // Create image elements for each PNG file
-                pngFiles.forEach(filename => {
-                    createImageElement(filename);
-                });
-
-                if (pngFiles.length === 0) {
-                    console.log('No PNG files found. Make sure the images folder is accessible.');
-                }
-            } catch (error) {
-                console.error('Error loading images:', error);
-                console.log('If you see a CORS error, you need to serve this file from a local web server.');
-            }
-        }
-
-        // Load images when page loads
-        window.addEventListener('load', loadImages);
-
-        // Prevent images from going off-screen on resize
-        window.addEventListener('resize', () => {
-            document.querySelectorAll('.image-container').forEach(container => {
-                const currentLeft = parseInt(container.style.left);
-                const currentTop = parseInt(container.style.top);
-                
-                if (currentLeft > window.innerWidth - 200) {
-                    container.style.left = (window.innerWidth - 200) + 'px';
-                }
-                if (currentTop > window.innerHeight - 200) {
-                    container.style.top = (window.innerHeight - 200) + 'px';
-                }
-            });
+      // Function to clear all images
+      function clearImages() {
+        document.querySelectorAll(".image-container").forEach((container) => {
+          container.remove();
         });
+      }
+
+      // Function to refresh/shuffle images
+      function refreshImages() {
+        clearImages();
+        currentImages.forEach((filename) => {
+          createImageElement(filename);
+        });
+      }
+
+      // Function to highlight a random image
+      function highlightRandomImage() {
+        const containers = document.querySelectorAll(".image-container");
+        if (containers.length === 0) return;
+
+        // Remove highlight from current image
+        if (currentHighlightedImage) {
+          currentHighlightedImage.classList.remove("highlighted");
+        }
+
+        // Pick a random image
+        const randomIndex = Math.floor(Math.random() * containers.length);
+        currentHighlightedImage = containers[randomIndex];
+
+        // Add highlight class (scales up and rotates to 0)
+        currentHighlightedImage.classList.add("highlighted");
+      }
+
+      // Function to toggle autoplay
+      function toggleAutoPlay() {
+        const playButton = document.querySelector(".play-button");
+
+        if (isPlaying) {
+          // Stop playing
+          isPlaying = false;
+          clearInterval(playInterval);
+          playButton.textContent = "▶️ Play";
+          playButton.classList.remove("playing");
+
+          // Remove highlight from current image
+          if (currentHighlightedImage) {
+            currentHighlightedImage.classList.remove("highlighted");
+            currentHighlightedImage = null;
+          }
+        } else {
+          // Start playing
+          isPlaying = true;
+          playButton.textContent = "⏸️ Pause";
+          playButton.classList.add("playing");
+
+          // Highlight first image immediately
+          highlightRandomImage();
+
+          // Then continue every 3 seconds
+          playInterval = setInterval(highlightRandomImage, 1500);
+        }
+      }
+
+      // Load images from the folder
+      async function loadImages() {
+        try {
+          // Fetch the images list from JSON file
+          const response = await fetch("images.json");
+
+          if (!response.ok) {
+            throw new Error(
+              "Could not load images.json. Make sure to run generate-images-list.py or generate-images-list.js first!"
+            );
+          }
+
+          const pngFiles = await response.json();
+
+          // Store the images for refresh functionality
+          currentImages = pngFiles;
+
+          // Create image elements for each PNG file
+          pngFiles.forEach((filename) => {
+            createImageElement(filename);
+          });
+
+          if (pngFiles.length === 0) {
+            console.log("No PNG files found in images.json.");
+          } else {
+            console.log(`Loaded ${pngFiles.length} images`);
+            // Auto-start play mode after images are loaded
+            toggleAutoPlay();
+          }
+        } catch (error) {
+          console.error("Error loading images:", error);
+          console.log("Make sure to run: python3 generate-images-list.py");
+          console.log("Or: node generate-images-list.js");
+        }
+      }
+
+      // Load images when page loads
+      window.addEventListener("load", loadImages);
+
+      // Prevent images from going off-screen on resize
+      window.addEventListener("resize", () => {
+        document.querySelectorAll(".image-container").forEach((container) => {
+          const currentLeft = parseInt(container.style.left);
+          const currentTop = parseInt(container.style.top);
+
+          if (currentLeft > window.innerWidth - 200) {
+            container.style.left = window.innerWidth - 200 + "px";
+          }
+          if (currentTop > window.innerHeight - 200) {
+            container.style.top = window.innerHeight - 200 + "px";
+          }
+        });
+      });
     </script>
-</body>
+  </body>
 </html>
