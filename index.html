@@ -21,7 +21,10 @@
 
       .image-container {
         position: absolute;
-        transition: transform 0.3s ease;
+        will-change: transform;
+        animation-name: rain-fall;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
       }
 
       .image-container:hover {
@@ -35,6 +38,15 @@
         max-height: 200px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         border-radius: 4px;
+      }
+
+      @keyframes rain-fall {
+        0% {
+          transform: translateY(-220px);
+        }
+        100% {
+          transform: translateY(calc(100vh + 220px));
+        }
       }
 
       .refresh-button {
@@ -96,7 +108,11 @@
 
       .image-container.highlighted {
         z-index: 9999 !important;
-        transform: scale(1.1) rotate(0deg) !important;
+      }
+
+      .image-container.highlighted img {
+        transform: scale(1.2);
+        box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
       }
     </style>
   </head>
@@ -111,16 +127,21 @@
       let playInterval = null;
       let currentHighlightedImage = null;
 
-      // Function to get random position
-      function getRandomPosition() {
-        const x = Math.random() * (window.innerWidth - 200);
-        const y = Math.random() * (window.innerHeight - 200);
-        return { x, y };
+      // Function to get random horizontal position
+      function getRandomX() {
+        return Math.random() * (window.innerWidth - 200);
       }
 
-      // Function to get random rotation
-      function getRandomRotation() {
-        return Math.floor(Math.random() * 360);
+      // Function to get random animation duration (speed)
+      function getRandomDuration() {
+        // Random duration between 8 and 20 seconds
+        return 8 + Math.random() * 12;
+      }
+
+      // Function to get random delay
+      function getRandomDelay() {
+        // Random delay between 0 and 10 seconds for staggering
+        return Math.random() * 10;
       }
 
       // Function to create and position an image
@@ -132,12 +153,13 @@
         img.src = imagePath + filename;
         img.alt = filename;
 
-        const pos = getRandomPosition();
-        const rotation = getRandomRotation();
+        const x = getRandomX();
+        const duration = getRandomDuration();
+        const delay = getRandomDelay();
 
-        container.style.left = pos.x + "px";
-        container.style.top = pos.y + "px";
-        container.style.transform = `rotate(${rotation}deg)`;
+        container.style.left = x + "px";
+        container.style.animationDuration = duration + "s";
+        container.style.animationDelay = -delay + "s"; // Negative delay to start mid-animation
 
         container.appendChild(img);
         document.body.appendChild(container);
