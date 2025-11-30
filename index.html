@@ -97,7 +97,8 @@
 
       // Function to get random horizontal position
       function getRandomX() {
-        return Math.random() * (window.innerWidth - 200);
+        // Allow images to start from -200px (off left edge) to full width (off right edge)
+        return -200 + Math.random() * (window.innerWidth + 200);
       }
 
       // Function to get random animation duration (speed)
