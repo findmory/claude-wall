@@ -83,11 +83,10 @@
         transform: scale(1.2);
         box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
       }
-
     </style>
   </head>
   <body>
-    <button class="refresh-button" onclick="refreshImages()">🔄 Shuffle</button>
+    <!-- <button class="refresh-button" onclick="refreshImages()">🔄 Shuffle</button> -->
     <script>
       // Path to your images folder (adjust if needed)
       const imagePath = "./images/";
@@ -142,12 +141,12 @@
       }
 
       // Function to refresh/shuffle images
-      function refreshImages() {
-        clearImages();
-        currentImages.forEach((filename) => {
-          createImageElement(filename);
-        });
-      }
+      // function refreshImages() {
+      //   clearImages();
+      //   currentImages.forEach((filename) => {
+      //     createImageElement(filename);
+      //   });
+      // }
 
       // Function to highlight a random image
       function highlightRandomImage() {
