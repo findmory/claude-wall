@@ -87,19 +87,19 @@
   </head>
   <body>
     <!-- <button class="refresh-button" onclick="refreshImages()">🔄 Shuffle</button> -->
-    <!-- Animation speed configuration (edit config.js to change defaults). -->
-    <script src="config.js"></script>
     <script>
       // Path to your images folder (adjust if needed)
       const imagePath = "./images/";
+      const config = {
+        baseMinDuration: 8,
+        baseMaxDuration: 20,
+        speed: 1,
+      };
 
-      // Allow an optional ?speed= URL override so the animation can be run at
-      // different speeds without editing config.js. Invalid, missing, zero, or
-      // negative values are ignored and the default speed is used.
       (function applySpeedOverride() {
-        const raw = new URLSearchParams(window.location.search).get("speed");
-        if (raw === null) return;
-        const parsed = parseFloat(raw);
+        const parsed = parseFloat(
+          new URLSearchParams(window.location.search).get("speed")
+        );
         if (Number.isFinite(parsed) && parsed > 0) {
           config.speed = parsed;
         }
@@ -117,8 +117,6 @@
 
       // Function to get random animation duration (speed)
       function getRandomDuration() {
-        // Random base duration within the configured range, then scaled by speed.
-        // A higher speed divides the duration, making images fall faster.
         const base =
           config.baseMinDuration +
           Math.random() * (config.baseMaxDuration - config.baseMinDuration);
