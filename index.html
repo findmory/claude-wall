@@ -90,6 +90,29 @@
     <script>
       // Path to your images folder (adjust if needed)
       const imagePath = "./images/";
+
+      // Animation speed configuration.
+      // baseMinDuration / baseMaxDuration define the random fall-duration range
+      // (in seconds) at normal speed. A shorter duration means a faster fall.
+      // `speed` scales the fall rate: >1 = faster, <1 = slower, 1 = default.
+      const config = {
+        baseMinDuration: 8, // seconds (current behavior)
+        baseMaxDuration: 20, // seconds (current behavior)
+        speed: 1, // multiplier: >1 = faster, <1 = slower
+      };
+
+      // Allow an optional ?speed= URL override so the animation can be run at
+      // different speeds without editing this file. Invalid, missing, zero, or
+      // negative values are ignored and the default speed is used.
+      (function applySpeedOverride() {
+        const raw = new URLSearchParams(window.location.search).get("speed");
+        if (raw === null) return;
+        const parsed = parseFloat(raw);
+        if (Number.isFinite(parsed) && parsed > 0) {
+          config.speed = parsed;
+        }
+      })();
+
       let currentImages = [];
       let currentHighlightedImage = null;
       let highlightInterval = null;
@@ -102,8 +125,12 @@
 
       // Function to get random animation duration (speed)
       function getRandomDuration() {
-        // Random duration between 8 and 20 seconds
-        return 8 + Math.random() * 12;
+        // Random base duration within the configured range, then scaled by speed.
+        // A higher speed divides the duration, making images fall faster.
+        const base =
+          config.baseMinDuration +
+          Math.random() * (config.baseMaxDuration - config.baseMinDuration);
+        return base / config.speed;
       }
 
       // Function to get random delay
