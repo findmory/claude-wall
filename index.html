@@ -21,10 +21,7 @@
 
       .image-container {
         position: absolute;
-        will-change: transform;
-        animation-name: rain-fall;
-        animation-timing-function: linear;
-        animation-iteration-count: infinite;
+        transition: transform 0.3s ease;
       }
 
       .image-container:hover {
@@ -38,15 +35,6 @@
         max-height: 200px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         border-radius: 4px;
-      }
-
-      @keyframes rain-fall {
-        0% {
-          transform: translateY(-220px);
-        }
-        100% {
-          transform: translateY(calc(100vh + 220px));
-        }
       }
 
       .refresh-button {
@@ -75,41 +63,66 @@
         transform: scale(0.95);
       }
 
-      .image-container.highlighted {
-        z-index: 9999 !important;
+      .play-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: #333;
+        color: #fff;
+        border: 2px solid #555;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-family: sans-serif;
+        z-index: 10000;
+        transition: all 0.3s ease;
       }
 
-      .image-container.highlighted img {
-        transform: scale(1.2);
-        box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+      .play-button:hover {
+        background: #444;
+        border-color: #777;
+        transform: scale(1.05);
+      }
+
+      .play-button:active {
+        transform: scale(0.95);
+      }
+
+      .play-button.playing {
+        background: #4caf50;
+        border-color: #66bb6a;
+      }
+
+      .image-container.highlighted {
+        z-index: 9999 !important;
+        transform: scale(1.1) rotate(0deg) !important;
       }
     </style>
   </head>
   <body>
-    <!-- <button class="refresh-button" onclick="refreshImages()">🔄 Shuffle</button> -->
+    <button class="refresh-button" onclick="refreshImages()">🔄 Shuffle</button>
+    <button class="play-button" onclick="toggleAutoPlay()">▶️ Play</button>
     <script>
       // Path to your images folder (adjust if needed)
       const imagePath = "./images/";
       let currentImages = [];
+      let isPlaying = false;
+      let playInterval = null;
       let currentHighlightedImage = null;
-      let highlightInterval = null;
+      // Default rotation speed (ms); overridden by config.json if present
+      let rotationSpeedMs = 1500;
 
-      // Function to get random horizontal position
-      function getRandomX() {
-        // Allow images to start from -200px (off left edge) to full width (off right edge)
-        return -200 + Math.random() * (window.innerWidth + 200);
+      // Function to get random position
+      function getRandomPosition() {
+        const x = Math.random() * (window.innerWidth - 200);
+        const y = Math.random() * (window.innerHeight - 200);
+        return { x, y };
       }
 
-      // Function to get random animation duration (speed)
-      function getRandomDuration() {
-        // Random duration between 8 and 20 seconds
-        return 8 + Math.random() * 12;
-      }
-
-      // Function to get random delay
-      function getRandomDelay() {
-        // Random delay between 0 and 10 seconds for staggering
-        return Math.random() * 10;
+      // Function to get random rotation
+      function getRandomRotation() {
+        return Math.floor(Math.random() * 360);
       }
 
       // Function to create and position an image
@@ -121,13 +134,12 @@
         img.src = imagePath + filename;
         img.alt = filename;
 
-        const x = getRandomX();
-        const duration = getRandomDuration();
-        const delay = getRandomDelay();
+        const pos = getRandomPosition();
+        const rotation = getRandomRotation();
 
-        container.style.left = x + "px";
-        container.style.animationDuration = duration + "s";
-        container.style.animationDelay = -delay + "s"; // Negative delay to start mid-animation
+        container.style.left = pos.x + "px";
+        container.style.top = pos.y + "px";
+        container.style.transform = `rotate(${rotation}deg)`;
 
         container.appendChild(img);
         document.body.appendChild(container);
@@ -141,12 +153,12 @@
       }
 
       // Function to refresh/shuffle images
-      // function refreshImages() {
-      //   clearImages();
-      //   currentImages.forEach((filename) => {
-      //     createImageElement(filename);
-      //   });
-      // }
+      function refreshImages() {
+        clearImages();
+        currentImages.forEach((filename) => {
+          createImageElement(filename);
+        });
+      }
 
       // Function to highlight a random image
       function highlightRandomImage() {
@@ -162,17 +174,65 @@
         const randomIndex = Math.floor(Math.random() * containers.length);
         currentHighlightedImage = containers[randomIndex];
 
-        // Add highlight class
+        // Add highlight class (scales up and rotates to 0)
         currentHighlightedImage.classList.add("highlighted");
       }
 
-      // Start auto-highlighting images
-      function startAutoHighlight() {
-        // Highlight first image immediately
-        highlightRandomImage();
+      // Function to toggle autoplay
+      function toggleAutoPlay() {
+        const playButton = document.querySelector(".play-button");
 
-        // Then continue every 1.5 seconds
-        highlightInterval = setInterval(highlightRandomImage, 1500);
+        if (isPlaying) {
+          // Stop playing
+          isPlaying = false;
+          clearInterval(playInterval);
+          playButton.textContent = "▶️ Play";
+          playButton.classList.remove("playing");
+
+          // Remove highlight from current image
+          if (currentHighlightedImage) {
+            currentHighlightedImage.classList.remove("highlighted");
+            currentHighlightedImage = null;
+          }
+        } else {
+          // Start playing
+          isPlaying = true;
+          playButton.textContent = "⏸️ Pause";
+          playButton.classList.add("playing");
+
+          // Highlight first image immediately
+          highlightRandomImage();
+
+          // Then continue at the configured rotation speed
+          playInterval = setInterval(highlightRandomImage, rotationSpeedMs);
+        }
+      }
+
+      // Load configuration (rotation speed) from config.json.
+      // Never throws — a missing or invalid config falls back to the default.
+      async function loadConfig() {
+        try {
+          const response = await fetch("config.json");
+
+          if (!response.ok) {
+            console.warn("Could not load config.json, using default speed");
+            return;
+          }
+
+          const config = await response.json();
+          const value = config.rotationSpeedMs;
+
+          if (typeof value === "number" && isFinite(value) && value > 0) {
+            rotationSpeedMs = value;
+            console.log(`Using rotation speed from config: ${rotationSpeedMs}ms`);
+          } else {
+            console.warn(
+              "Invalid rotationSpeedMs in config.json, using default speed"
+            );
+          }
+        } catch (error) {
+          console.warn("Could not load config.json, using default speed");
+        }
       }
 
       // Load images from the folder
@@ -201,8 +261,8 @@
             console.log("No PNG files found in images.json.");
           } else {
             console.log(`Loaded ${pngFiles.length} images`);
-            // Auto-start highlighting
-            startAutoHighlight();
+            // Auto-start play mode after images are loaded
+            toggleAutoPlay();
           }
         } catch (error) {
           console.error("Error loading images:", error);
@@ -211,8 +271,11 @@
         }
       }
 
-      // Load images when page loads
-      window.addEventListener("load", loadImages);
+      // Load config first, then images when page loads
+      window.addEventListener("load", async () => {
+        await loadConfig();
+        await loadImages();
+      });
 
       // Prevent images from going off-screen on resize
       window.addEventListener("resize", () => {

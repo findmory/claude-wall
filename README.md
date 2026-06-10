@@ -2,7 +2,7 @@
 
 _if you use it you'll get it_
 
-Displays a wall of the claude code 'thinking...' messages. They are randomly laid out and every 3 seconds one rotates and comes to the top for display. You can also interactively choose ones to read by mouseover.
+Displays a wall of the claude code 'thinking...' messages. They are randomly laid out and one rotates and comes to the top for display at a configurable interval. You can also interactively choose ones to read by mouseover.
 
 ## To run this locally
 
@@ -17,3 +17,14 @@ Start a simple server like
 `python3 -m http.server 8000`
 
 If you want to deploy to github pages follow [these](DEPLOYMENT.md) instructions
+
+## Configuration
+
+App settings live in `config.json` in the project root. No HTML edits are needed — change the value and reload the page.
+
+| Setting           | Type   | Default | Description                                                              |
+| ----------------- | ------ | ------- | ------------------------------------------------------------------------ |
+| `rotationSpeedMs` | number | `1500`  | How often (in milliseconds) a new image is highlighted during autoplay. |
+
+Example `config.json`:
+
